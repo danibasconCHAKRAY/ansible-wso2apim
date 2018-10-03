@@ -1,0 +1,14 @@
+# tasks file for ansible-wso2apim - Specific for CentOS
+
+- name: install required rpm and software
+  yum:
+    name: "{{ item }}"
+    state: present
+#  when:  (is_installed.results|length == 1) or (is_installed.results[1].yumstate != 'installed')
+  with_items:
+   - zip
+   - unzip
+   - rsync
+  tags:
+   - rpms
+

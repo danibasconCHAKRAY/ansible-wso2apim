@@ -1,0 +1,23 @@
+---
+# defaults file for wso2apim-2.5.0
+
+wso2_user: wso2
+wso2_group: wso2
+carbon_base: "/opt/wso2/{{wso2_app}}"
+carbon_home: "{{carbon_base}}/current"
+unzip_folder: "/tmp"
+
+# these are the default ports for wso2 products
+wso2_default_https_port: 9443
+wso2_default_http_port: 9763
+
+#the following is written into the init.d file for the service
+java_home: "/usr/java/default"
+
+# wso2
+wso2_app: wso2apim
+wso2_app_version: 2.5.0
+wso2_app_directory: "{{wso2_app}}-{{ wso2_app_version }}"
+wso2_app_offset: 0
+wso2_headers: "User-Agent:testuser,Referer:http://connect.wso2.com/wso2/getform/reg/new_product_download"
+wso2_apim_url: "http://product-dist.wso2.com/products/api-manager/{{wso2_app_version}}/wso2am-{{wso2_app_version}}.zip"

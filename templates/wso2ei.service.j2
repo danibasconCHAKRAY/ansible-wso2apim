@@ -1,0 +1,24 @@
+[Unit]
+Description={{ wso2_app }} init script
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+LimitNOFILE=65535
+Type=oneshot
+User={{ wso2_user }}
+Group={{ wso2_group }}
+RemainAfterExit=yes
+
+Environment=JAVA_HOME={{java_home}}
+Environment=JAVA_OPTS=
+PIDFile={{ carbon_home }}/wso2carbon.pid
+#ExecStart=/etc/init.d/inope-{{ wso2_app }} start
+#ExecStop=/etc/init.d/inope-{{ wso2_app }} stop
+ExecStart={{ carbon_home }}/bin/integrator.sh start
+ExecStop={{ carbon_home }}/bin/integrator.sh stop
+TimeoutSec=120 
+
+[Install]
+WantedBy=multi-user.target
+

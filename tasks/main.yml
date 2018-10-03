@@ -1,0 +1,47 @@
+---
+# tasks file for ansible-wso2ei
+
+- name: Create service group for wso2
+  become: true
+  group:
+    name: "{{ wso2_group }}"
+    state: present
+  tags:
+    - enviroment
+
+- name: Create service account for wso2
+  become: true
+  become_method: sudo
+  user:
+    name: "{{ wso2_user }}"
+    system: yes
+    home: "/home/{{ wso2_user }}"
+    shell: /bin/bash
+    group: "{{ wso2_group }}"
+    state: present
+  tags:
+    - enviroment
+
+- name: Add the wso2-app-sudoers script
+  become: true
+  become_method: sudo
+  template:
+    src: wso2-app-sudoers.j2
+    dest: "/etc/sudoers.d/{{wso2_app}}-sudoers"
+    validate: 'visudo -cf %s'
+    mode: 0440
+  tags:
+    - enviroment
+
+- import_tasks: centos-main.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Download wso2 api manager
+  become: true
+  become_method: sudo
+  get_url:
+    headers: "{{wso2_headers}}"
+    url: "{{wso2_apim_url}}"
+    dest: "/tmp/wso2am-{{wso2_app_version}}.zip"
+
+
