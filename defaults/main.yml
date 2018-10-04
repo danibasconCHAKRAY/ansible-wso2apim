@@ -3,7 +3,8 @@
 
 wso2_user: wso2
 wso2_group: wso2
-carbon_base: "/opt/{{wso2_app}}-{{wso2_app_version}}"
+carbon_base: "/opt/{{wso2_app}}" 
+# -{{wso2_app_version}}"
 carbon_home: "{{carbon_base}}/current"
 unzip_folder: "/tmp"
 

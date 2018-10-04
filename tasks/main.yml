@@ -71,9 +71,10 @@
   become_user: "{{ wso2_user }}"
   unarchive:
     src: "{{ item }}"
-    dest: "{{ unzip_folder }}"
+    dest: "{{ carbon_base }}"
+    remote_src: yes
     mode: 0755
   with_items:
     - "{{ wso2_app_archive }}"
-  when: not version_deployed.stat.exists and unzip_exists.stat.exists == false
+  when: version_deployed.stat.exists and unzip_exists.stat.exists
 
