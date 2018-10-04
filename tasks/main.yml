@@ -15,7 +15,7 @@
   user:
     name: "{{ wso2_user }}"
     system: yes
-    home: "/home/{{ wso2_user }}"
+    home: "{{ carbon_base }}"
     shell: /bin/bash
     group: "{{ wso2_group }}"
     state: present
@@ -36,12 +36,45 @@
 - import_tasks: centos-main.yml
   when: ansible_os_family == 'RedHat'
 
-- name: Download wso2 api manager
+- name: "Check if it exists wso2am-{{wso2_app_version}}.zip"
+  stat:
+    path: "/tmp/wso2am-{{wso2_app_version}}.zip"
+  register: zip
+
+- import_tasks: download.yml
+  when: not zip.stat.exists
+
+- name: Check if the version already exists on the remote system.
+  stat:
+    path: "{{ carbon_base }}"
+  register: version_deployed
+
+- name: Check if the unzip folder exists 
+  stat:
+    path: "{{ unzip_folder }}"
+  register: unzip_exists
+
+- name: Make the unzip directory for the wso2 apps.
   become: true
   become_method: sudo
-  get_url:
-    headers: "{{wso2_headers}}"
-    url: "{{wso2_apim_url}}"
-    dest: "/tmp/wso2am-{{wso2_app_version}}.zip"
+  file:
+    dest: "{{ unzip_folder }}/{{wso2_app_directory}}"
+    owner: "{{ wso2_user }}"
+    group: "{{ wso2_group }}"
+    mode: 0775
+    state: directory
+  when: not version_deployed.stat.exists and unzip_exists.stat.exists == false
 
+- name: Copy the file and unzip it on the remote system
+  become: true
+  become_method: sudo
+  become_user: "{{ wso2_user }}"
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ carbon_base }}"
+    remote_src: yes
+    mode: 0755
+  with_items:
+    - "{{ wso2_app_archive }}"
+  when: version_deployed.stat.exists and unzip_exists.stat.exists
 
