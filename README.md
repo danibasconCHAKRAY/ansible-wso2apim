@@ -3,9 +3,18 @@ Role Name
 
 This role get up a instances with the carbon product, wso2 api manager 2.5.0.
 
-Requirements
+That make?
 ------------
 
+Creates user
+Creates group
+Downloads wso2 api manager
+Unzips zip api manager
+Installs java
+
+Requirements
+------------
+java
 
 Role Variables
 --------------
