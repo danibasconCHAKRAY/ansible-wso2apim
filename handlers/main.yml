@@ -1,2 +1,22 @@
 ---
-# handlers file for wso2apim-2.5.0
+# handlers file for ansible-wso2ei
+- name: start wso2-app
+  become: true
+  become_method: sudo
+  systemd:
+    state=started
+    name="inope-{{ wso2_app }}.service"
+    daemon_reload=yes
+- name: restart wso2-app
+  become: true
+  become_method: sudo
+  systemd:
+    name="inope-{{ wso2_app }}.service"
+    state=restarted
+    daemon_reload=yes
+- name: reload systemd
+  become: true
+  become_method: sudo
+  command:
+    systemctl daemon-reload
+

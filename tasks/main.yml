@@ -15,7 +15,7 @@
   user:
     name: "{{ wso2_user }}"
     system: yes
-    home: "/home/{{ wso2_user }}"
+    home: "{{ carbon_base }}"
     shell: /bin/bash
     group: "{{ wso2_group }}"
     state: present
@@ -36,12 +36,132 @@
 - import_tasks: centos-main.yml
   when: ansible_os_family == 'RedHat'
 
-- name: Download wso2 api manager
+- name: "Check if it exists wso2am-{{wso2_app_version}}.zip"
+  stat:
+    path: "/tmp/wso2am-{{wso2_app_version}}.zip"
+  register: zip
+
+- import_tasks: download.yml
+  when: not zip.stat.exists
+
+- name: Check if the version already exists on the remote system.
+  stat:
+    path: "{{ carbon_base }}"
+  register: version_deployed
+
+- name: Check if the {{unzip_folder}} exists 
+  stat:
+    path: "{{ unzip_folder }}"
+  register: unzip_exists
+
+- name: Make the unzip directory for the wso2 apps.
   become: true
   become_method: sudo
-  get_url:
-    headers: "{{wso2_headers}}"
-    url: "{{wso2_apim_url}}"
-    dest: "/tmp/wso2am-{{wso2_app_version}}.zip"
+  file:
+    dest: "{{ unzip_folder }}/{{wso2_app_directory}}"
+    owner: "{{ wso2_user }}"
+    group: "{{ wso2_group }}"
+    mode: 0775
+    state: directory
+  when: not version_deployed.stat.exists and unzip_exists.stat.exists == false
 
 
+- name: Check if the unzip folder exists 
+  stat:
+    path: "{{ carbon_base }}/{{wso2_app_directory}}"
+  register: unzipfolder_exists
+
+
+- name: Copy the file and unzip it on the remote system
+  become: true
+  become_method: sudo
+  become_user: "{{ wso2_user }}"
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ carbon_base }}"
+    remote_src: yes
+    mode: 0755
+  with_items:
+    - "{{ wso2_app_archive }}"
+  when: not unzipfolder_exists.stat.exists
+
+- name: Create link to the install directory at carbon_home.
+  become: true
+  become_user: "{{ wso2_user }}"
+  file:
+    state: link
+    src: "{{ carbon_base }}/{{ wso2_app_directory }}"
+    dest: "{{ carbon_home }}"
+  when: version_deployed.stat.exists
+
+
+- name: Apply a new version of wso2server.sh parametrized with JAVA_OPTS
+  become: true
+  become_method: sudo
+  become_user: "{{ wso2_user }}"
+  template:
+    src: "{{ wso2_app_version }}/wso2server.sh.j2"
+    dest: "{{ carbon_base }}/{{ wso2_app_directory }}/bin/wso2server.sh"
+    mode: 0755
+  tags:
+    - script
+
+#- name: Apply rsync script and node list
+#  become: true
+#  become_method: sudo
+#  become_user: "{{ wso2_user }}"
+#  template:
+#    src: "{{ wso2_app_version }}/{{ item }}.j2"
+#    dest: "{{ carbon_home }}/{{ item }}"
+#    mode: 0755
+#  with_items:
+#    - rsync.sh
+#    - nodes-list.txt
+#  tags:
+#    - rsync
+
+- name: Add wso2 symlink to /usr/local/bin.
+  become: true
+  become_method: sudo
+  file:
+    src: "{{ carbon_home }}/bin/wso2server.sh"
+    dest: "/usr/local/bin/{{ wso2_app }}"
+    state: link
+  when: version_deployed.stat.exists
+
+
+# section for initializing the application to start and run as a service.
+- name: Add wso2 app init script.
+  become: true
+  become_method: sudo
+  template:
+    src: wso2ei.service.j2
+    dest: "/usr/lib/systemd/system/{{ wso2_app }}.service"
+    mode: 0644
+  when: ansible_os_family == 'RedHat'
+  notify: reload systemd
+  tags:
+   - systemd
+
+- name: Ensure wso2-app is set to start on boot.
+  become: true
+  become_method: sudo
+  systemd:
+    name: "{{ wso2_app }}"
+    enabled: yes
+    #state: started
+    masked: no
+  notify: reload systemd
+  when: ansible_os_family == 'RedHat'
+  tags:
+   - systemd
+
+- name: Start systemctl wso2am.
+  become: true
+  become_method: sudo
+  systemd:
+    name: "{{ wso2_app }}"
+    state: started
+  when: ansible_os_family == 'RedHat'
+  tags:
+   - systemd

@@ -15,8 +15,8 @@ Environment=JAVA_OPTS=
 PIDFile={{ carbon_home }}/wso2carbon.pid
 #ExecStart=/etc/init.d/inope-{{ wso2_app }} start
 #ExecStop=/etc/init.d/inope-{{ wso2_app }} stop
-ExecStart={{ carbon_home }}/bin/integrator.sh start
-ExecStop={{ carbon_home }}/bin/integrator.sh stop
+ExecStart={{ carbon_home }}/bin/wso2server.sh start
+ExecStop={{ carbon_home }}/bin/wso2server.sh stop
 TimeoutSec=120 
 
 [Install]
