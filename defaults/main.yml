@@ -4,7 +4,6 @@
 wso2_user: wso2
 wso2_group: wso2
 carbon_base: "/opt/{{wso2_app}}" 
-# -{{wso2_app_version}}"
 carbon_home: "{{carbon_base}}/current"
 unzip_folder: "/tmp"
 
@@ -14,6 +13,7 @@ wso2_default_http_port: 9763
 
 #the following is written into the init.d file for the service
 java_home: "/usr/java/default"
+jvm_mem: "-Xms256m -Xmx1024m"
 
 # wso2
 wso2_app: wso2am
@@ -21,9 +21,9 @@ wso2_app_version: 2.5.0
 wso2_app_directory: "{{wso2_app}}-{{ wso2_app_version }}"
 wso2_app_offset: 0
 wso2_headers: "User-Agent:testuser,Referer:http://connect.wso2.com/wso2/getform/reg/new_product_download"
-wso2_apim_url: "http://product-dist.wso2.com/products/api-manager/{{wso2_app_version}}/wso2am-{{wso2_app_version}}.zip"
+#wso2_apim_url: "http://product-dist.wso2.com/products/api-manager/{{wso2_app_version}}/wso2am-{{wso2_app_version}}.zip"
+wso2_apim_url: "http://10.10.1.169/wum/products/wso2am/2.5.0/wso2am-2.5.0.zip"
 wso2_app_https_port: "{{ (wso2_default_https_port|int) + (wso2_app_offset|int) }}"
 wso2_app_http_port: "{{ (wso2_default_http_port|int) + (wso2_app_offset|int) }}"
 wso2_dir_archive: "/home/{{ wso2_user }}"
 wso2_app_archive: "{{ unzip_folder }}/{{wso2_app}}-{{wso2_app_version}}.zip"
-oracle_driver: "ojdbc7.jar_12.1.0.1.jar"
