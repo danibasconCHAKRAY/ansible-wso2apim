@@ -3,7 +3,7 @@
   become: true
   become_method: sudo
   get_url:
-    headers: "{{wso2_headers}}"
+    #headers: "{{wso2_headers}}"
     url: "{{wso2_apim_url}}"
     dest: "/tmp/wso2am-{{wso2_app_version}}.zip"
 

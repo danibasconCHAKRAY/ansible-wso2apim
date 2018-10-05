@@ -1,0 +1,38 @@
+#!/bin/sh
+ei_server_dir={{ carbon_home }}/repository/deployment/server
+dest_dir={{ carbon_home }}/repository/deployment
+#pem_file=~/.ssh/carbon-440-test.pem
+pem_file=~{{ wso2_user }}/.ssh/id_rsa.pub  
+lock_folder=/tmp/depsync-lock
+log_dir=/tmp/carbon-rsync-logs/
+log_file=logs.txt
+
+  
+#delete the lock on exit
+trap 'rm -rf ${lock_folder}' EXIT
+
+[[ ! -d ${log_dir} ]] && mkdir ${log_dir}  
+  
+#keep a lock to stop parallel runs
+if mkdir  ${lock_folder}; then
+  echo "Locking succeeded" >&2
+else
+  echo "Lock failed - exit" >&2
+  exit 1
+fi
+  
+  
+#get the nodes-list.txt
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd`
+popd > /dev/null
+echo $SCRIPTPATH
+  
+ 
+for x in `cat ${SCRIPTPATH}/nodes-list.txt`
+do
+echo ================================================== >> ${log_dir}/${log_file};
+echo Syncing $x;
+rsync -arv $ei_server_dir $x:$dest_dir >> ${log_dir}/${log_file};
+echo ================================================== >> ${log_dir}/${log_file};
+done
