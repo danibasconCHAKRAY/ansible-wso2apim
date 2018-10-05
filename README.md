@@ -13,10 +13,6 @@ That make?
 - Creates a daemon for systemd
 - Runs the api manager products 
 
-Requirements
-------------
-java
-
 Role Variables
 --------------
 
