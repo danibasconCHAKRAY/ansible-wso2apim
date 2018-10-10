@@ -135,7 +135,7 @@
   become: true
   become_method: sudo
   template:
-    src: wso2ei.service.j2
+    src: wso2am.service.j2
     dest: "/usr/lib/systemd/system/{{ wso2_app }}.service"
     mode: 0644
   when: ansible_os_family == 'RedHat'
