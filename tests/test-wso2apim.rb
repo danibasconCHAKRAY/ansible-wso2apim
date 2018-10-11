@@ -56,6 +56,29 @@ control "Control-04" do
 	   end
   end
 
+ #Verificación de la carpeta wso2am-2.5.0 en /opt/wso2am/
+ control "Control-05" do
+	impact 1.0
+	title "exists wso2am-2.5.0 folder in /opt/wso2am/"
+	desc "exists wso2am-2.5.0 folder in /opt/wso2am/"
+	describe file('/opt/wso2am/wso2am-2.5.0') do
+		its('type') { should eq :directory }
+		it { should be_directory }
+	   end
+  end
+
+#Verificación del link current
+control "Control-06" do
+	impact 1.0                                          
+	title "exists current link in /opt/wso2am/"                                 
+	desc "exists current link in /opt/wso2am/" 
+  	describe file('/opt/wso2am/current') do
+		it { should be_symlink }
+		it { should be_linked_to '/opt/wso2am/wso2am-2.5.0' }
+		it { should_not be_file }
+		it { should be_directory }
+ 	 end
+end
 
 #Verificación del servicio wso2am
 control "Control-07" do
@@ -79,7 +102,30 @@ control "Control-08" do
 	end	
 end
 
+#Verificación del link /usr/local/bin/wso2am
+control "Control-09" do
+	impact 1.0                                          
+	title "exists current link in /usr/local/bin/wso2am to /opt/wso2am/current/bin/wso2server.sh"
+	desc "exists current link in /usr/local/bin/wso2am to /opt/wso2am/current/bin/wso2server.sh" 
+  	describe file('/usr/local/bin/wso2am') do
+		it { should be_symlink }
+		it { should be_linked_to '/opt/wso2am/wso2am-2.5.0/bin/wso2server.sh' }
+		it { should be_file }
+		it { should_not be_directory }
+ 	 end
+end
+
 #Verificación de que el usuario ejecutar /opt/wso2am/wso2am-2.5.0/bin/wso2server.sh sin contraseña
+control "Control-10" do
+	impact 1.0                                          
+	title "wso2 can runs wso2server.sh"                                 
+	desc "wso2 can runs wso2server.sh"                                 
+	describe bash("cat /etc/sudoers.d/wso2am-sudoers  | grep 'wso2 ALL=(ALL:ALL) NOPASSWD: /opt/wso2am/current/bin/wso2server.sh' | wc -l") do
+	  its('stdout') { should cmp 1 }
+	end
+ end
+#Veri
+ficación de que el usuario ejecutar /opt/wso2am/wso2am-2.5.0/bin/wso2server.sh sin contraseña
 control "Control-11" do
 	impact 1.0                                          
 	title "wso2 can runs wso2server.sh"                                 
