@@ -124,8 +124,8 @@ control "Control-10" do
 	  its('stdout') { should cmp 1 }
 	end
  end
-#Veri
-ficación de que el usuario ejecutar /opt/wso2am/wso2am-2.5.0/bin/wso2server.sh sin contraseña
+
+#Verificación de que el usuario ejecutar /opt/wso2am/wso2am-2.5.0/bin/wso2server.sh sin contraseña
 control "Control-11" do
 	impact 1.0                                          
 	title "wso2 can runs wso2server.sh"                                 
